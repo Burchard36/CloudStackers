@@ -1,0 +1,9 @@
+{
+  "world_settings": {
+    "enabled_worlds": [
+      "world",
+      "world_the_end",
+      "world_nether"
+    ]
+  }
+}

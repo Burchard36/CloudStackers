@@ -1,0 +1,6 @@
+name: CloudStacker
+version: '${project.version}'
+main: com.burchard36.CloudStacker
+api-version: 1.16
+authors: [ DaltonBurchard ]
+description: Stacker plugin for just about anything!
