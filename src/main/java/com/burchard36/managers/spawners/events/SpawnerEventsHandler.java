@@ -16,7 +16,6 @@ import org.bukkit.inventory.ItemStack;
 public class SpawnerEventsHandler implements Listener {
 
     public SpawnerEventsHandler(final CloudStacker plugin) {
-
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 

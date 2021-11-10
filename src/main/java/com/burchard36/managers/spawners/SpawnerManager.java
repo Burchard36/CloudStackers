@@ -8,7 +8,9 @@ import com.burchard36.managers.Manager;
 import com.burchard36.managers.spawners.config.SpawnerConfig;
 import com.burchard36.managers.spawners.config.SpawnerConfigs;
 import com.burchard36.managers.spawners.data.SpawnerStorageManager;
+import com.burchard36.managers.spawners.events.SpawnerEventsHandler;
 import org.bukkit.Location;
+import org.bukkit.event.HandlerList;
 
 import java.util.HashMap;
 
@@ -30,6 +32,7 @@ public class SpawnerManager implements Manager {
     private final CloudStacker plugin;
     private SpawnerConfig spawnerConfig;
     private SpawnerStorageManager storageManager;
+    private SpawnerEventsHandler spawnerEventsHandler;
 
     private HashMap<Location, StackedSpawner> stackedSpawners;
 
@@ -40,6 +43,7 @@ public class SpawnerManager implements Manager {
 
     @Override
     public void load() {
+        this.spawnerEventsHandler = new SpawnerEventsHandler(this.plugin);
         this.stackedSpawners = new HashMap<>();
         this.storageManager = new SpawnerStorageManager(this);
         this.spawnerConfig = new SpawnerConfig(this.plugin,
@@ -60,9 +64,17 @@ public class SpawnerManager implements Manager {
 
     @Override
     public void stop() {
+        /* Unregister events */
+        HandlerList.unregisterAll(this.spawnerEventsHandler);
+        this.spawnerEventsHandler = null;
+
+        /* Unregister configs */
         this.spawnerConfig = null;
         this.plugin.getPluginDataManager().clearDataMap(SpawnerConfigs.PLUGIN_MAP);
+
         this.stackedSpawners.clear();
+
+        /* Clear storage managers */
         this.storageManager.stop();
     }
 
@@ -81,5 +93,9 @@ public class SpawnerManager implements Manager {
      */
     public final CloudStacker getPlugin() {
         return this.plugin;
+    }
+
+    public final SpawnerConfig getSpawnerConfig() {
+        return this.spawnerConfig;
     }
 }

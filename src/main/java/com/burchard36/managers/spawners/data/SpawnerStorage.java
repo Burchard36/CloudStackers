@@ -5,24 +5,20 @@ import com.burchard36.json.enums.FileFormat;
 import com.burchard36.json.errors.InvalidClassAdapterException;
 import com.squareup.moshi.*;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class SpawnerStorage extends JsonDataFile {
 
-    //public List<Object> spawners;
+    @Json(name = "spawners")
     private List<JsonSpawnerData> spawnerData;
 
     public SpawnerStorage(JavaPlugin plugin, String pathToFile, FileFormat format) {
         super(plugin, pathToFile, format);
-        //this.spawners = new ArrayList<>();
         this.spawnerData = new ArrayList<>();
-        this.spawnerData.add(new JsonSpawnerData());
     }
 
     @FromJson

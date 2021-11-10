@@ -49,6 +49,7 @@ public class SpawnerStorageManager implements Manager {
 
     @Override
     public void stop() {
-
+        this.spawnersByWorld.saveAll();
+        // TODO: Plugin DataManager will have a clearMap method, call that here
     }
 }

@@ -4,10 +4,10 @@ import com.burchard36.CloudStacker;
 import com.burchard36.json.JsonDataFile;
 import com.burchard36.json.enums.FileFormat;
 import com.burchard36.json.errors.InvalidClassAdapterException;
+import com.burchard36.managers.spawners.config.formats.spawner.SpawnerItem;
 import com.burchard36.managers.spawners.config.formats.spawner.SpawnerSettings;
 import com.burchard36.managers.spawners.config.formats.world.WorldSettings;
 import com.squareup.moshi.*;
-import okio.BufferedSource;
 
 import java.io.IOException;
 
@@ -60,6 +60,20 @@ public class SpawnerConfig extends JsonDataFile {
                 .beginObject()
                 .name("spawner_mode")
                 .value(this.spawnerSettings.getSpawnMode().name())
+                .name("spawner_item")
+                .beginArray();
+
+        for (SpawnerItem spawnerItem : this.spawnerSettings.getSpawnerItemList()) {
+            writer.beginObject();
+            writer.name("item_name").value(spawnerItem.getName())
+                    .name("item_lore").jsonValue(spawnerItem.getLore())
+                    .name("entity_type").value(spawnerItem.getType().name());
+            writer.endObject();
+        }
+
+
+        writer
+                .endArray()
                 .endObject();
     }
 }

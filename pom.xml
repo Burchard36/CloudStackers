@@ -80,7 +80,7 @@
         <dependency>
             <groupId>com.github.Burchard36</groupId>
             <artifactId>BurchAPI</artifactId>
-            <version>1.2.0</version>
+            <version>1.2.2</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

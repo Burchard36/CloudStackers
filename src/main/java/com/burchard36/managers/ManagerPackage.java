@@ -1,6 +1,7 @@
 package com.burchard36.managers;
 
 import com.burchard36.CloudStacker;
+import com.burchard36.managers.commands.CommandManager;
 import com.burchard36.managers.items.ItemManager;
 import com.burchard36.managers.mobs.MobManager;
 import com.burchard36.managers.players.PlayerManager;
@@ -18,12 +19,14 @@ public class ManagerPackage {
     private final MobManager mobManager;
     private final ItemManager itemManager;
     private final PlayerManager playerManager;
+    private final CommandManager commandManager;
 
     public ManagerPackage(final CloudStacker plugin) {
         this.spawnerManager = new SpawnerManager(plugin);
         this.mobManager = new MobManager();
         this.itemManager = new ItemManager();
         this.playerManager = new PlayerManager(plugin);
+        this.commandManager = new CommandManager(plugin);
 
         this.loadAll();
     }
@@ -42,6 +45,7 @@ public class ManagerPackage {
     public final void unloadAll() {
         this.spawnerManager.stop();
         this.playerManager.stop();
+        this.commandManager.stop();
     }
 
     /**
@@ -50,6 +54,7 @@ public class ManagerPackage {
     public final void loadAll() {
         this.spawnerManager.load();
         this.playerManager.load();
+        this.commandManager.load();
     }
 
     /**
@@ -82,5 +87,13 @@ public class ManagerPackage {
      */
     public final PlayerManager getPlayerManager() {
         return this.playerManager;
+    }
+
+    /**
+     * Gets the CommandManager instance
+     * @return CommandManager instance
+     */
+    public final CommandManager getCommandManager() {
+        return this.commandManager;
     }
 }
