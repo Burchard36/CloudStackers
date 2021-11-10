@@ -9,6 +9,7 @@ import com.burchard36.managers.spawners.config.SpawnerConfig;
 import com.burchard36.managers.spawners.config.SpawnerConfigs;
 import com.burchard36.managers.spawners.data.SpawnerStorageManager;
 import com.burchard36.managers.spawners.events.SpawnerEventsHandler;
+import com.burchard36.managers.spawners.gui.guis.SpawnerCommandGui;
 import org.bukkit.Location;
 import org.bukkit.event.HandlerList;
 
@@ -33,6 +34,7 @@ public class SpawnerManager implements Manager {
     private SpawnerConfig spawnerConfig;
     private SpawnerStorageManager storageManager;
     private SpawnerEventsHandler spawnerEventsHandler;
+    private SpawnerCommandGui spawnerCommandGui;
 
     private HashMap<Location, StackedSpawner> stackedSpawners;
 
@@ -46,6 +48,7 @@ public class SpawnerManager implements Manager {
         this.spawnerEventsHandler = new SpawnerEventsHandler(this.plugin);
         this.stackedSpawners = new HashMap<>();
         this.storageManager = new SpawnerStorageManager(this);
+        this.spawnerCommandGui = new SpawnerCommandGui(this);
         this.spawnerConfig = new SpawnerConfig(this.plugin,
                 "/configs/spawners/spawner_config.json",
                 FileFormat.JSON);
@@ -54,6 +57,7 @@ public class SpawnerManager implements Manager {
         this.plugin.getPluginDataManager().loadDataFileToMap(SpawnerConfigs.PLUGIN_MAP, SpawnerConfigs.SPAWNER_CONFIG, this.spawnerConfig);
 
         this.storageManager.load();
+        this.spawnerCommandGui.load();
     }
 
     @Override
@@ -76,6 +80,9 @@ public class SpawnerManager implements Manager {
 
         /* Clear storage managers */
         this.storageManager.stop();
+
+        /* Clear Gui's attached to this package */
+        this.spawnerCommandGui.stop();
     }
 
     /**
@@ -95,7 +102,19 @@ public class SpawnerManager implements Manager {
         return this.plugin;
     }
 
+    /**
+     * Grabs a instance of the SpawnerConfig
+     * @return instance of SpawnerConfig
+     */
     public final SpawnerConfig getSpawnerConfig() {
         return this.spawnerConfig;
+    }
+
+    /**
+     * Returns the GUI that handles showing spawners in /spawners
+     * @return instance of SpawnerCommandGui
+     */
+    public final SpawnerCommandGui getSpawnerCommandGui() {
+        return this.spawnerCommandGui;
     }
 }

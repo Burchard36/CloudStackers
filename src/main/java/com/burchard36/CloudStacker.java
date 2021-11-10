@@ -4,6 +4,7 @@ import com.burchard36.json.PluginDataManager;
 import com.burchard36.managers.Manager;
 import com.burchard36.managers.ManagerPackage;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ServiceLoader;
@@ -36,5 +37,14 @@ public final class CloudStacker extends JavaPlugin implements Api {
     @Override
     public PluginDataManager getPluginDataManager() {
         return this.lib.getPluginDataManager();
+    }
+
+    /**
+     * Gets a instance of ManagerPackage, this has getters for all public managers to be used either externally
+     * or internally, these are basically just API's
+     * @return instance of ManagerPackage
+     */
+    public ManagerPackage getManagerPackage() {
+        return this.managerPackage;
     }
 }
