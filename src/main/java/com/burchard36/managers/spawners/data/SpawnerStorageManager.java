@@ -1,6 +1,7 @@
 package com.burchard36.managers.spawners.data;
 
 import com.burchard36.CloudStacker;
+import com.burchard36.json.JsonDataFile;
 import com.burchard36.json.PluginDataMap;
 import com.burchard36.json.enums.FileFormat;
 import com.burchard36.managers.Manager;
@@ -8,8 +9,8 @@ import com.burchard36.managers.spawners.SpawnerManager;
 import com.burchard36.managers.spawners.config.SpawnerConfigs;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.block.CreatureSpawner;
 
-import java.util.List;
 import java.util.UUID;
 
 public class SpawnerStorageManager implements Manager {
@@ -27,18 +28,61 @@ public class SpawnerStorageManager implements Manager {
     public void load() {
         this.plugin.getPluginDataManager().registerPluginMap(SpawnerConfigs.SPAWNER_DATA, new PluginDataMap());
         this.spawnersByWorld = this.plugin.getPluginDataManager().getDataMap(SpawnerConfigs.SPAWNER_DATA);
+        this.loadSpawnerData();
+    }
 
-        Bukkit.getWorlds().forEach((world) -> {
-            final UUID worldUuid = world.getUID();
-            final SpawnerStorage worldStorage =
-                    new SpawnerStorage(plugin, "/data/" + world.getName(), FileFormat.JSON);
-            this.spawnersByWorld.loadDataFile(worldUuid.toString(), worldStorage);
+    public SpawnerStorage getCachedStorageFile(final World world) {
+        return (SpawnerStorage) this.spawnersByWorld.getDataFile(world.getUID().toString());
+    }
+
+    private SpawnerStorage getNewSpawnerStorageFile(final World world) {
+        return new SpawnerStorage(this.plugin, "/data/" + world.getName(), FileFormat.JSON);
+    }
+
+    /**
+     * Loads the DataFile into the PluginDataMap ordered by the world UUID
+     * @param world World to load in
+     */
+    private void loadDataFile(final World world) {
+        final UUID worldUuid = world.getUID();
+        final SpawnerStorage worldStorage = this.getNewSpawnerStorageFile(world);
+        this.spawnersByWorld.loadDataFile(worldUuid.toString(), worldStorage);
+    }
+
+    /**
+     * Loads spawner data to the map ordered by world
+     * @param world World to load spawner data from
+     */
+    private void loadSpawnerData(final World world) {
+        final JsonDataFile spawnerDataFile = this.spawnersByWorld.getDataFile(world.getUID().toString());
+        final SpawnerStorage spawnerStorageFile = (SpawnerStorage) spawnerDataFile;
+
+        spawnerStorageFile.getSpawnerData().forEach((data) -> {
+            final CreatureSpawner dataSpawner = data.getCreatureSpawner();
+            if (dataSpawner == null) return; // TODO: Remove errored spawners from storage
+            this.spawnerManager.addStackedSpawner(data.getLocation(), data.createStackedSpawner());
         });
+    }
 
-        final World world = Bukkit.getWorld("world");
-        final SpawnerStorage worldStorage = (SpawnerStorage) this.spawnersByWorld.getDataFile(world.getUID().toString());
-        final List<JsonSpawnerData> dataList = worldStorage.getSpawnerData();
-        Bukkit.getLogger().info("Total data in list: " + dataList.size());
+    private void saveSpawnerData(final World world) {
+        final SpawnerStorage storage = this.getCachedStorageFile(world);
+        storage.flushData();
+        this.spawnerManager.getStackedSpawners().forEach((location, stackedSpawner) -> {
+            if (location.getWorld().getUID() == world.getUID()) {
+                storage.addIfNotExists(stackedSpawner.spawnerData);
+            }
+        });
+    }
+
+    private void loadSpawnerData() {
+        Bukkit.getWorlds().forEach((world) -> {
+            this.loadDataFile(world);
+            this.loadSpawnerData(world);
+        });
+    }
+
+    private void saveSpawnerData() {
+        Bukkit.getWorlds().forEach(this::saveSpawnerData);
     }
 
     @Override
@@ -49,7 +93,8 @@ public class SpawnerStorageManager implements Manager {
 
     @Override
     public void stop() {
+        this.saveSpawnerData();
         this.spawnersByWorld.saveAll();
-        // TODO: Plugin DataManager will have a clearMap method, call that here
+        this.spawnersByWorld.getDataMap().clear();
     }
 }

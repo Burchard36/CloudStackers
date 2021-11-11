@@ -66,4 +66,18 @@ public class SpawnerStorage extends JsonDataFile {
     public final List<JsonSpawnerData> getSpawnerData() {
         return this.spawnerData;
     }
+
+    /**
+     * Clears the List of JsonSpawnerData objects
+     */
+    public final void flushData() {
+        this.spawnerData.clear();
+    }
+
+    public final void addIfNotExists(final JsonSpawnerData data) {
+        Bukkit.getLogger().info("Checking SpawnerStorage#addIfNotExists if spawnerData contains JsonSpawnerData");
+        if (this.spawnerData.contains(data)) return;
+        Bukkit.getLogger().info("It didnt exist!!");
+        this.spawnerData.add(data);
+    }
 }

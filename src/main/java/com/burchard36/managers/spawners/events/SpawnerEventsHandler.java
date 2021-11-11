@@ -2,15 +2,13 @@ package com.burchard36.managers.spawners.events;
 
 import com.burchard36.CloudStacker;
 import com.burchard36.inventory.ItemWrapper;
-import com.burchard36.lib.spawners.StackedSpawner;
-import net.kyori.adventure.text.Component;
+import com.burchard36.managers.spawners.SpawnerManager;
+import com.burchard36.managers.spawners.data.JsonSpawnerData;
+import com.burchard36.managers.spawners.lib.StackedSpawner;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -19,10 +17,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class SpawnerEventsHandler implements Listener {
 
+    private final SpawnerManager manager;
     private final CloudStacker plugin;
 
-    public SpawnerEventsHandler(final CloudStacker plugin) {
-        this.plugin = plugin;
+    public SpawnerEventsHandler(final SpawnerManager manager) {
+        this.manager = manager;
+        this.plugin = this.manager.getPlugin();
         Bukkit.getPluginManager().registerEvents(this, this.plugin);
     }
 
@@ -43,6 +43,18 @@ public class SpawnerEventsHandler implements Listener {
 
                 spawner.setSpawnedType(inHandType);
                 spawner.update(true);
+
+                final Location loc = spawner.getLocation();
+                manager.addStackedSpawner(loc,
+                        new StackedSpawner(spawner,
+                        new JsonSpawnerData(
+                            loc.getBlockX(),
+                                loc.getBlockY(),
+                                loc.getBlockZ(),
+                                1,
+                                1,
+                                loc.getWorld().getName()
+                        )));
             }
         }.runTaskLater(this.plugin, 1);
     }

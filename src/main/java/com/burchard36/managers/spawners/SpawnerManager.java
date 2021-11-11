@@ -3,14 +3,16 @@ package com.burchard36.managers.spawners;
 import com.burchard36.CloudStacker;
 import com.burchard36.json.PluginDataMap;
 import com.burchard36.json.enums.FileFormat;
-import com.burchard36.lib.spawners.StackedSpawner;
 import com.burchard36.managers.Manager;
 import com.burchard36.managers.spawners.config.SpawnerConfig;
 import com.burchard36.managers.spawners.config.SpawnerConfigs;
 import com.burchard36.managers.spawners.data.SpawnerStorageManager;
 import com.burchard36.managers.spawners.events.SpawnerEventsHandler;
 import com.burchard36.managers.spawners.gui.guis.SpawnerCommandGui;
+import com.burchard36.managers.spawners.lib.StackedSpawner;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.event.HandlerList;
 
 import java.util.HashMap;
@@ -44,7 +46,7 @@ public class SpawnerManager implements Manager {
 
     @Override
     public void load() {
-        this.spawnerEventsHandler = new SpawnerEventsHandler(this.plugin);
+        this.spawnerEventsHandler = new SpawnerEventsHandler(this);
         this.stackedSpawners = new HashMap<>();
         this.storageManager = new SpawnerStorageManager(this);
         this.spawnerCommandGui = new SpawnerCommandGui(this);
@@ -91,6 +93,33 @@ public class SpawnerManager implements Manager {
      */
     public final StackedSpawner getStackedSpawner(final Location location) {
         return this.stackedSpawners.get(location);
+    }
+
+    /**
+     * Adds a StackedSpawner to the HashMap
+     * @param location Location of where StackedSpawner is
+     * @param spawner StackedSpawner instance
+     */
+    public final void addStackedSpawner(final Location location, final StackedSpawner spawner) {
+        this.stackedSpawners.putIfAbsent(location, spawner);
+    }
+
+    /**
+     * Returns the map containing all the Stacked Spawners
+     * @return HashMap of StackedSpawners ordered by Location
+     */
+    public final HashMap<Location, StackedSpawner> getStackedSpawners() {
+        return this.stackedSpawners;
+    }
+
+    public static CreatureSpawner getCreatureSpawner(final Block block) {
+        if (block.getState() instanceof CreatureSpawner) {
+            return (CreatureSpawner) block.getState();
+        } else return null;
+    }
+
+    public static CreatureSpawner getCreatureSpawner(final Location location) {
+        return getCreatureSpawner(location.getBlock());
     }
 
     /**
