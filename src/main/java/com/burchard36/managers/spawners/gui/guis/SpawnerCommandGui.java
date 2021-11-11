@@ -51,10 +51,11 @@ public class SpawnerCommandGui implements Manager{
             final ItemWrapper wrapper = new ItemWrapper(new ItemStack(Material.SPAWNER, 1));
             wrapper.setDisplayName(spawnerItem.getName())
                     .setItemLore(spawnerItem.getLore())
-                    .addDataString("spawner_type", spawnerItem.getType().name());
+                    .addDataString("entity_type", spawnerItem.getType().name());
             //this.itemStacks.addItem(spawnerItem.getType(), wrapper);
             spawners.add(new ClickableItem(wrapper)
                     .onClick((clickAction) -> {
+                        clickAction.setCancelled(true);
                         final Player clicker = (Player) clickAction.getWhoClicked();
                         if (clicker.hasPermission("spawners.give.self")) {
 

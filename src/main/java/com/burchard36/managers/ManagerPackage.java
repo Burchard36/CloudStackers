@@ -15,6 +15,7 @@ import com.burchard36.managers.spawners.SpawnerManager;
  */
 public class ManagerPackage {
 
+    private final CloudStacker plugin;
     private final SpawnerManager spawnerManager;
     private final MobManager mobManager;
     private final ItemManager itemManager;
@@ -22,11 +23,12 @@ public class ManagerPackage {
     private final CommandManager commandManager;
 
     public ManagerPackage(final CloudStacker plugin) {
-        this.spawnerManager = new SpawnerManager(plugin);
+        this.plugin = plugin;
+        this.spawnerManager = new SpawnerManager(this.plugin);
         this.mobManager = new MobManager();
         this.itemManager = new ItemManager();
-        this.playerManager = new PlayerManager(plugin);
-        this.commandManager = new CommandManager(plugin);
+        this.playerManager = new PlayerManager(this.plugin);
+        this.commandManager = new CommandManager(this);
 
         this.loadAll();
     }
@@ -55,6 +57,10 @@ public class ManagerPackage {
         this.spawnerManager.load();
         this.playerManager.load();
         this.commandManager.load();
+    }
+
+    public final CloudStacker getPlugin() {
+        return this.plugin;
     }
 
     /**

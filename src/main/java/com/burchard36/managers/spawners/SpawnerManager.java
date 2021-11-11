@@ -40,7 +40,6 @@ public class SpawnerManager implements Manager {
 
     public SpawnerManager(final CloudStacker plugin) {
         this.plugin = plugin;
-        this.load();
     }
 
     @Override

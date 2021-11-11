@@ -55,8 +55,8 @@
 
     <repositories>
         <repository>
-            <id>spigotmc-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+            <id>papermc-repo</id>
+            <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
 
         <!-- JitPack for GitHub projects -->
@@ -70,8 +70,8 @@
     <dependencies>
         <!-- SpigotAPI Jar -->
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
             <version>1.17.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
@@ -80,7 +80,7 @@
         <dependency>
             <groupId>com.github.Burchard36</groupId>
             <artifactId>BurchAPI</artifactId>
-            <version>1.2.2</version>
+            <version>01-AA-04</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
