@@ -21,6 +21,8 @@ public class JsonSpawnerData {
     public int spawnerAmount;
     @Json(name = "world_name")
     public String worldName;
+    @Json(name = "hologram_name")
+    public String hologramName;
 
     public JsonSpawnerData() {
         this.x = 0;
@@ -29,6 +31,7 @@ public class JsonSpawnerData {
         this.spawnerLevel = 1;
         this.spawnerAmount = 1;
         this.worldName = "";
+        this.hologramName = "";
     }
 
     public JsonSpawnerData(final int x,
@@ -36,13 +39,15 @@ public class JsonSpawnerData {
                            final int z,
                            final int spawnerLevel,
                            final int spawnerAmount,
-                           final String worldName) {
+                           final String worldName,
+                           final String hologramName) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.spawnerLevel = spawnerLevel;
         this.spawnerAmount = spawnerAmount;
         this.worldName = worldName;
+        this.hologramName = hologramName;
     }
 
     public final World getWorld() {

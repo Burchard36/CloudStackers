@@ -1,5 +1,6 @@
 package com.burchard36;
 
+import com.burchard36.hologram.HologramManager;
 import com.burchard36.json.PluginDataManager;
 import com.burchard36.managers.Manager;
 import com.burchard36.managers.ManagerPackage;
@@ -13,11 +14,13 @@ public final class CloudStacker extends JavaPlugin implements Api {
 
     private ApiLib lib;
     private ManagerPackage managerPackage;
+    private HologramManager hologramManager;
 
     @Override
     public void onEnable() {
         this.lib = new ApiLib().initializeApi(this);
         this.managerPackage = new ManagerPackage(this);
+        this.hologramManager = this.lib.getHologramManager();
     }
 
     @Override
@@ -46,5 +49,9 @@ public final class CloudStacker extends JavaPlugin implements Api {
      */
     public ManagerPackage getManagerPackage() {
         return this.managerPackage;
+    }
+
+    public HologramManager getHologramManager() {
+        return this.hologramManager;
     }
 }

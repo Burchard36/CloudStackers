@@ -10,6 +10,7 @@ import com.burchard36.managers.spawners.data.SpawnerStorageManager;
 import com.burchard36.managers.spawners.events.SpawnerEventsHandler;
 import com.burchard36.managers.spawners.gui.guis.SpawnerCommandGui;
 import com.burchard36.managers.spawners.lib.StackedSpawner;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
@@ -71,13 +72,9 @@ public class SpawnerManager implements Manager {
     public void stop() {
         /* Unregister events */
         HandlerList.unregisterAll(this.spawnerEventsHandler);
-        this.spawnerEventsHandler = null;
 
         /* Unregister configs */
-        this.spawnerConfig = null;
         this.plugin.getPluginDataManager().clearDataMap(SpawnerConfigs.PLUGIN_MAP);
-
-        this.stackedSpawners.clear();
 
         /* Clear storage managers */
         this.storageManager.stop();
@@ -102,6 +99,7 @@ public class SpawnerManager implements Manager {
      */
     public final void addStackedSpawner(final Location location, final StackedSpawner spawner) {
         this.stackedSpawners.putIfAbsent(location, spawner);
+        Bukkit.getLogger().info("Added stacked spawner!");
     }
 
     /**
