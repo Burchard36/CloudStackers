@@ -25,7 +25,7 @@ public class ManagerPackage {
     public ManagerPackage(final CloudStacker plugin) {
         this.plugin = plugin;
         this.spawnerManager = new SpawnerManager(this.plugin);
-        this.mobManager = new MobManager();
+        this.mobManager = new MobManager(this);
         this.itemManager = new ItemManager();
         this.playerManager = new PlayerManager(this.plugin);
         this.commandManager = new CommandManager(this);
@@ -47,6 +47,7 @@ public class ManagerPackage {
     public final void unloadAll() {
         this.spawnerManager.stop();
         this.playerManager.stop();
+        this.mobManager.stop();
         this.commandManager.stop();
     }
 
@@ -56,6 +57,7 @@ public class ManagerPackage {
     public final void loadAll() {
         this.spawnerManager.load();
         this.playerManager.load();
+        this.mobManager.load();
         this.commandManager.load();
     }
 

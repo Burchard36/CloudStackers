@@ -20,6 +20,8 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.burchard36.CloudStacker.getNearbyBlocks;
+
 public class SpawnerEventsHandler implements Listener {
 
     private final SpawnerManager manager;
@@ -45,7 +47,7 @@ public class SpawnerEventsHandler implements Listener {
         /* We need to wait a tick in order for the spawner data to be edited */
         boolean wasMerged = false;
 
-        for (final Block block : this.getNearbyBlocks(placedBlocked.getLocation(), 3)) {
+        for (final Block block : getNearbyBlocks(placedBlocked.getLocation(), 3)) {
             if (block.getType() == Material.SPAWNER) {
                 final CreatureSpawner possibleAnchor = (CreatureSpawner) block.getState();
                 if (possibleAnchor.getSpawnedType() == inHandType) {
@@ -78,17 +80,5 @@ public class SpawnerEventsHandler implements Listener {
                                 inHandType.name().toLowerCase().substring(0, 1).toUpperCase() + entityString.substring(1)
                         )).loadHologram(manager));
 
-    }
-
-    private List<Block> getNearbyBlocks(final Location location, final int radius) {
-        List<Block> blocks = new ArrayList<Block>();
-        for(int x = location.getBlockX() - radius; x <= location.getBlockX() + radius; x++) {
-            for(int y = location.getBlockY() - radius; y <= location.getBlockY() + radius; y++) {
-                for(int z = location.getBlockZ() - radius; z <= location.getBlockZ() + radius; z++) {
-                    blocks.add(location.getWorld().getBlockAt(x, y, z));
-                }
-            }
-        }
-        return blocks;
     }
 }

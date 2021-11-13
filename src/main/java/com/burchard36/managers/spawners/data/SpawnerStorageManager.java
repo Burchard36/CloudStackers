@@ -36,7 +36,7 @@ public class SpawnerStorageManager implements Manager {
     }
 
     private SpawnerStorage getNewSpawnerStorageFile(final World world) {
-        return new SpawnerStorage(this.plugin, "/data/" + world.getName(), FileFormat.JSON);
+        return new SpawnerStorage(this.plugin, "/data/spawners/" + world.getName(), FileFormat.JSON);
     }
 
     /**

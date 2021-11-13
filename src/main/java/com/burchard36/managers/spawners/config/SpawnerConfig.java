@@ -76,4 +76,6 @@ public class SpawnerConfig extends JsonDataFile {
                 .endArray()
                 .endObject();
     }
+
+
 }

@@ -99,7 +99,6 @@ public class SpawnerManager implements Manager {
      */
     public final void addStackedSpawner(final Location location, final StackedSpawner spawner) {
         this.stackedSpawners.putIfAbsent(location, spawner);
-        Bukkit.getLogger().info("Added stacked spawner!");
     }
 
     /**
