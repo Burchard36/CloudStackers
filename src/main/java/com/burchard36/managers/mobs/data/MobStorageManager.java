@@ -45,7 +45,7 @@ public class MobStorageManager implements Manager {
 
     }
 
-    private MobStorage getNewMobStorageFile(final World world) {
+    public final MobStorage getNewMobStorageFile(final World world) {
         return new MobStorage(this.plugin, "/data/mobs/" + world.getName(), FileFormat.JSON);
     }
 

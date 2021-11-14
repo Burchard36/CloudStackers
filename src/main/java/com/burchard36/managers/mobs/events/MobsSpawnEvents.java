@@ -5,16 +5,20 @@ import com.burchard36.managers.mobs.data.JsonMobData;
 import com.burchard36.managers.mobs.data.MobStorageManager;
 import com.burchard36.managers.mobs.lib.StackedMob;
 import com.burchard36.managers.spawners.lib.StackedSpawner;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 
 import java.util.List;
+
+import static com.burchard36.ApiLib.convert;
 
 public class MobsSpawnEvents implements Listener {
 
@@ -42,15 +46,17 @@ public class MobsSpawnEvents implements Listener {
                 spawnAmount = spawner.spawnerData.spawnerLevel * spawner.spawnerData.spawnerAmount;
             }
 
-            final List<StackedMob> inRadius = this.manager.getMobsInRadius(spawnedEntity.getLocation(), 3);
+            final List<StackedMob> inRadius = this.manager.getMobsInRadius(spawnedEntity.getLocation(), 10);
             if (!inRadius.isEmpty()) {
+                Bukkit.getLogger().info(convert("&aStacked mobs were found in radius"));
                 for (final StackedMob mob : inRadius) {
                     if (spawnedEntity.getType() == mob.jsonData.getType()) {
-                        mob.jsonData.amount += spawnAmount;
-                        mob.reloadStackedMob();
+                        Bukkit.getLogger().info(convert("&aAdding to stack type: " + spawnedEntity.getType().name()));
+                        this.manager.addToStack(mob.getEntityUuid(), spawnAmount);
                     }
                 }
             } else {
+                Bukkit.getLogger().info(convert("&aSpawning new stack"));
                 final Location mobLoc = spawnedEntity.getLocation();
                 final StackedMob mob = new StackedMob(mobLoc, new JsonMobData(
                         spawnedEntity.getType().name(),
@@ -59,10 +65,21 @@ public class MobsSpawnEvents implements Listener {
                         mobLoc.getBlockX(),
                         mobLoc.getBlockY(),
                         mobLoc.getBlockZ()
-                ));
-                this.manager.addStackedMob(spawnedEntity.getUniqueId(), mob);
+                )).loadStackedMob(this.manager);
+                this.manager.addStackedMob(mob.getEntityUuid(), mob);
             }
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onDeath(final EntityDeathEvent event) {
+        final Entity killedEntity = event.getEntity();
+        final StackedMob possibleStackedMob = this.manager.getStackedMob(killedEntity.getUniqueId());
+
+        if (possibleStackedMob != null) {
+            possibleStackedMob.jsonData.amount -= 1;
+            possibleStackedMob.reloadStackedMob();
         }
     }
 

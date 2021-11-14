@@ -3,28 +3,33 @@ package com.burchard36.managers.mobs;
 import com.burchard36.CloudStacker;
 import com.burchard36.managers.Manager;
 import com.burchard36.managers.ManagerPackage;
+import com.burchard36.managers.mobs.data.MobStorage;
+import com.burchard36.managers.mobs.data.MobStorageManager;
 import com.burchard36.managers.mobs.events.MobsSpawnEvents;
 import com.burchard36.managers.mobs.lib.StackedMob;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.HandlerList;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import static com.burchard36.ApiLib.convert;
+
 public class MobManager implements Manager {
 
     private final ManagerPackage managerPackage;
     private final CloudStacker plugin;
+    private MobStorageManager storageManager;
     private MobsSpawnEvents mobsSpawnEvents;
+    private BukkitTask mergeTask;
 
-    /* Since multiple Entities may exist at one Location, we need to
-     * Have a map of Location's that contain a List of StackedMobs!
-     */
-    private HashMap<UUID, List<StackedMob>> stackedMobs;
+    private HashMap<UUID, StackedMob> stackedMobs;
 
     public MobManager(final ManagerPackage managerPackage) {
         this.managerPackage = managerPackage;
@@ -32,27 +37,17 @@ public class MobManager implements Manager {
     }
 
     /**
-     * Adds a singular StackedMob to a Location in the HashMap
-     * @param entityUuid EntityUUID to use as Key
-     * @param stackedMob StackedMob to add to Cache
-     */
-    public final void addStackedMob(final UUID entityUuid, final StackedMob stackedMob) {
-        List<StackedMob> search = this.getStackedMobs(entityUuid);
-        if (search == null) search = new ArrayList<>();
-        search.add(stackedMob.loadStackedMob(this));
-        this.stackedMobs.put(entityUuid, search);
-    }
-
-    /**
      * Adds a list of StackedMob's to a Location in the HashMap
      * @param entityUuid EntityUUID to use as Key
-     * @param stackedMobs List of StackedMob's to use
+     * @param stackedMob StackedMob to use
      */
-    public final void addStackedMobs(final UUID entityUuid, final List<StackedMob> stackedMobs) {
-        List<StackedMob> search = this.getStackedMobs(entityUuid);
-        if (search == null) search = new ArrayList<>();
-        search.addAll(stackedMobs);
-        this.stackedMobs.put(entityUuid, search);
+    public final void addStackedMob(final UUID entityUuid, final StackedMob stackedMob) {
+        this.stackedMobs.putIfAbsent(entityUuid, stackedMob);
+    }
+
+    public final void replaceStackedMob(final UUID oldUuid, final UUID newUuid, final StackedMob data) {
+        this.stackedMobs.remove(oldUuid);
+        this.stackedMobs.putIfAbsent(newUuid, data);
     }
 
     /**
@@ -60,7 +55,7 @@ public class MobManager implements Manager {
      * @param entityUuid EntityUUID to use as search key
      * @return List of StackedMob's
      */
-    public final List<StackedMob> getStackedMobs(final UUID entityUuid) {
+    public final StackedMob getStackedMob(final UUID entityUuid) {
         return this.stackedMobs.get(entityUuid);
     }
 
@@ -68,24 +63,23 @@ public class MobManager implements Manager {
      * Adds an amount to a StackedMob, however since multiple StackedMobs may exists
      * at one Location, you need to specifiy an EntityType to use as a "secondary" key
      * @param entityUuid EntityUUID of the StackedMob
-     * @param type Type of Entity to use
      * @param amount integer amount to add to stack
      */
-    public final void addToStack(final UUID entityUuid, final EntityType type, final int amount) {
-        final boolean[] added = {false}; // TODO: Temporary, may be bugged? WHo knowsssss, maybe we see one day, maybe wont, oooo im a mysterious bug that may cause you hours of struggle one day oooo
-        this.getStackedMobs(entityUuid).forEach((mob) -> {
-            if (mob.jsonData.getType() == type && !added[0]) {
-                mob.jsonData.amount += amount;
-                added[0] = true;
-            }
-        });
+    public final void addToStack(final UUID entityUuid, final int amount) {
+        final StackedMob mob = this.getStackedMob(entityUuid);
+        mob.jsonData.amount += amount;
+        mob.reloadHologram();
     }
 
     public final List<StackedMob> getMobsInRadius(final Location location, final int radius) {
         final List<StackedMob> mobsFound = new ArrayList<>();
+        Bukkit.getLogger().info("Getting mobs in radius. . .");
         location.getNearbyEntities(radius, radius, radius).forEach((entity) -> {
-            final List<StackedMob> mobs = this.getStackedMobs(entity.getUniqueId());
-            if (mobs != null) mobsFound.addAll(mobs);
+            if (entity.getType() == EntityType.PLAYER) return;
+            if (entity.getType() == EntityType.DROPPED_ITEM) return;
+            if (entity.getType() == EntityType.ARMOR_STAND) return;
+            final StackedMob mob = this.getStackedMob(entity.getUniqueId());
+            if (mob != null) mobsFound.add(mob);
         });
         return mobsFound;
     }
@@ -93,8 +87,21 @@ public class MobManager implements Manager {
     @Override
     public void load() {
         this.stackedMobs = new HashMap<>();
+        this.storageManager = new MobStorageManager(this);
+        this.storageManager.load();
         this.mobsSpawnEvents = new MobsSpawnEvents(this);
         Bukkit.getServer().getPluginManager().registerEvents(this.mobsSpawnEvents, this.plugin);
+
+        this.mergeTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                Bukkit.getLogger().info(convert("&aRunning merge task. . ."));
+                Bukkit.getWorlds().forEach((world) -> {
+                    final MobStorage storage = storageManager.getNewMobStorageFile(world);
+
+                });
+            }
+        }.runTaskTimerAsynchronously(this.plugin, 0, (20 * 60) * 1); // Ignore warning ikik
     }
 
     @Override
@@ -106,6 +113,8 @@ public class MobManager implements Manager {
     @Override
     public void stop() {
         HandlerList.unregisterAll(this.mobsSpawnEvents);
+        this.mergeTask.cancel();
+        this.storageManager.stop();
     }
 
     public final CloudStacker getPlugin() {

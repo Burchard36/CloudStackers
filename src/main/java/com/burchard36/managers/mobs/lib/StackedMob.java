@@ -3,10 +3,12 @@ package com.burchard36.managers.mobs.lib;
 import com.burchard36.EntityWrapper;
 import com.burchard36.managers.mobs.MobManager;
 import com.burchard36.managers.mobs.data.JsonMobData;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 
 import java.util.UUID;
 
@@ -32,20 +34,31 @@ public class StackedMob {
         this.manager = manager;
 
         final World world = this.location.getWorld();
-        final Entity entity = world.spawnEntity(this.location, this.entityType);
+        final Entity entity = world.spawnEntity(this.location, this.entityType, CreatureSpawnEvent.SpawnReason.CUSTOM);
         this.wrapper = new EntityWrapper(entity);
-
-        this.wrapper.setHologram(convert("&7x&b" + this.jsonData.amount + " &e" + entity.getType().name().toLowerCase().substring(0, 1).toUpperCase() +
-                entity.getType().name().toLowerCase().substring(1)));
-        this.wrapper.setIntegerValue("stacked_amount", this.jsonData.amount);
-
+        this.writeWrapper();
         return this;
     }
 
+    public void reloadHologram() {
+        this.writeWrapper();
+    }
+
+    /**
+     * ONLY CALL AFTER ENTITY HAS DIED
+     */
     public void reloadStackedMob() {
         final Entity entity = this.wrapper.getEntity();
-        this.wrapper.setHologram(convert("&7x&b" + this.jsonData.amount + " &e" + entity.getType().name().toLowerCase().substring(0, 1).toUpperCase() +
-                entity.getType().name().toLowerCase().substring(1)));
+        entity.setCustomNameVisible(false);
+        final Entity newEntity = this.location.getWorld().spawnEntity(entity.getLocation(), this.jsonData.getType(), CreatureSpawnEvent.SpawnReason.CUSTOM);
+        this.wrapper = new EntityWrapper(newEntity);
+        this.manager.replaceStackedMob(entity.getUniqueId(), newEntity.getUniqueId(), this);
+        this.writeWrapper();
+    }
+
+    private void writeWrapper() {
+        this.wrapper.setHologram(convert("&7x&b" + this.jsonData.amount + " &e" + this.wrapper.getEntity().getType().name().toLowerCase().substring(0, 1).toUpperCase() +
+                this.wrapper.getEntity().getType().name().toLowerCase().substring(1)));
         this.wrapper.setIntegerValue("stacked_amount", this.jsonData.amount);
     }
 

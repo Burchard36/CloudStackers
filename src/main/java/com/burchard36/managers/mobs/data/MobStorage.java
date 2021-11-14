@@ -38,20 +38,23 @@ public class MobStorage extends JsonDataFile {
     private void writeMobList(final JsonWriter writer) throws IOException{
         writer.name("mobs")
                 .beginArray();
-        this.mobList.forEach((jsonMobData) -> {
-            try {
-                writer.beginObject();
-                writer.name("mob_type").value(jsonMobData.mobType)
-                        .name("x").value(jsonMobData.x)
-                        .name("y").value(jsonMobData.y)
-                        .name("z").value(jsonMobData.z)
-                        .name("world_name").value(jsonMobData.worldName)
-                        .name("mob_amount").value(jsonMobData.amount);
-                writer.endObject();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+        if (mobList != null) {
+            this.mobList.forEach((jsonMobData) -> {
+                try {
+                    writer.beginObject();
+                    writer.name("mob_type").value(jsonMobData.mobType)
+                            .name("x").value(jsonMobData.x)
+                            .name("y").value(jsonMobData.y)
+                            .name("z").value(jsonMobData.z)
+                            .name("world_name").value(jsonMobData.worldName)
+                            .name("mob_amount").value(jsonMobData.amount);
+                    writer.endObject();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+        writer.endArray();
     }
 
     public final List<JsonMobData> getMobDataList() {
