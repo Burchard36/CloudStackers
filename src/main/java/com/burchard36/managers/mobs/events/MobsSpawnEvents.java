@@ -2,10 +2,8 @@ package com.burchard36.managers.mobs.events;
 
 import com.burchard36.managers.mobs.MobManager;
 import com.burchard36.managers.mobs.data.JsonMobData;
-import com.burchard36.managers.mobs.data.MobStorageManager;
 import com.burchard36.managers.mobs.lib.StackedMob;
 import com.burchard36.managers.spawners.lib.StackedSpawner;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
@@ -13,7 +11,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 
 import java.util.List;
@@ -48,15 +45,12 @@ public class MobsSpawnEvents implements Listener {
 
             final List<StackedMob> inRadius = this.manager.getMobsInRadius(spawnedEntity.getLocation(), 10);
             if (!inRadius.isEmpty()) {
-                Bukkit.getLogger().info(convert("&aStacked mobs were found in radius"));
                 for (final StackedMob mob : inRadius) {
                     if (spawnedEntity.getType() == mob.jsonData.getType()) {
-                        Bukkit.getLogger().info(convert("&aAdding to stack type: " + spawnedEntity.getType().name()));
                         this.manager.addToStack(mob.getEntityUuid(), spawnAmount);
                     }
                 }
             } else {
-                Bukkit.getLogger().info(convert("&aSpawning new stack"));
                 final Location mobLoc = spawnedEntity.getLocation();
                 final StackedMob mob = new StackedMob(mobLoc, new JsonMobData(
                         spawnedEntity.getType().name(),

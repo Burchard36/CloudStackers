@@ -40,6 +40,9 @@ public class StackedMob {
         return this;
     }
 
+    /**
+     * Reloads the
+     */
     public void reloadHologram() {
         this.writeWrapper();
     }
